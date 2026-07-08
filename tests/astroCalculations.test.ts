@@ -169,3 +169,23 @@ describe('shuffleTarot', () => {
     expect(d1).not.toEqual(d2);
   });
 });
+
+describe('Edge cases', () => {
+  it('handles leap year dates correctly', () => {
+    const date = new Date('2024-02-29');
+    const sign = calculateSunSign(date);
+    expect(ZODIAC_SIGNS).toContain(sign);
+  });
+
+  it('handles year boundary dates', () => {
+    const date = new Date('2024-12-31T23:59:59');
+    const phase = calculateMoonPhase(date);
+    expect(phase).toHaveProperty('phase');
+  });
+
+  it('returns valid rising sign at midnight', () => {
+    const date = new Date('2024-06-15T00:00');
+    const sign = calculateRisingSign(date);
+    expect(ZODIAC_SIGNS).toContain(sign);
+  });
+});

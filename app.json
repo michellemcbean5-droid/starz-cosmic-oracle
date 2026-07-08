@@ -21,7 +21,10 @@
       "infoPlist": {
         "UIBackgroundModes": [
           "remote-notification"
-        ]
+        ],
+        "NSUserTrackingUsageDescription": "This identifier will be used to deliver personalized ads.",
+        "NSCameraUsageDescription": "Camera access is not required by this app.",
+        "NSMicrophoneUsageDescription": "Microphone access is not required by this app."
       }
     },
     "android": {
@@ -33,7 +36,8 @@
       "versionCode": 1,
       "permissions": [
         "NOTIFICATIONS",
-        "VIBRATE"
+        "VIBRATE",
+        "RECEIVE_BOOT_COMPLETED"
       ]
     },
     "web": {
@@ -43,7 +47,13 @@
       "expo-notifications",
       "expo-haptics",
       "expo-linear-gradient",
-      "expo-blur"
-    ]
+      "expo-blur",
+      "expo-asset"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "your-eas-project-id"
+      }
+    }
   }
 }

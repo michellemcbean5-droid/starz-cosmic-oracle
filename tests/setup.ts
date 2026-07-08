@@ -21,3 +21,9 @@ jest.mock('react-native-reanimated', () => {
   Reanimated.default.call = () => {};
   return Reanimated;
 });
+jest.mock('expo-sharing', () => ({
+  shareAsync: jest.fn().mockResolvedValue(undefined),
+}));
+jest.mock('expo-constants', () => ({
+  default: { manifest: {} },
+}));

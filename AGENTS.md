@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Starz Cosmic Oracle is a React Native / Expo mobile astrology app providing daily horoscopes, birth charts, tarot readings, moon phases, and planetary transits. It supports monetization via subscriptions and ads.
+Starz Cosmic Oracle is a React Native / Expo mobile astrology app providing daily horoscopes, birth charts, tarot readings, moon phases, planetary transits, dream interpretation, compatibility analysis, and numerology. It supports monetization via subscriptions and ads, with AI-powered enhancements via free HuggingFace API.
 
 ## Technology Stack
 
@@ -16,21 +16,22 @@ Starz Cosmic Oracle is a React Native / Expo mobile astrology app providing dail
 - **Payments**: react-native-iap + RevenueCat configuration stubs
 - **Ads**: react-native-google-mobile-ads configuration stubs
 - **Testing**: Jest + jest-expo preset
+- **AI**: HuggingFace Inference API (free tier, 10k requests/month)
 
 ## Directory Structure
 
 ```
 src/
-├── api/           # Astrology data & calculations (pure functions)
-├── components/    # Reusable UI (CosmicCard, StarfieldBackground, etc.)
+├── api/           # Astrology data & calculations (pure functions) + AI integration
+├── components/    # Reusable UI (CosmicCard, StarfieldBackground, ErrorBoundary, Skeleton, etc.)
 ├── constants/     # Colors, typography, astrology data, ads, IAP config
 ├── hooks/         # useAuth, useDailyReset
 ├── navigation/    # RootNavigator (Stack), MainTabNavigator (Bottom Tabs)
-├── screens/      # 8 screens: Home, BirthChart, Tarot, Moon, Planets, Profile, Subscription, History
-├── stores/        # Zustand stores: auth (subscription, limits), history
-├── types/         # TypeScript types: ZodiacSign, Planet, TarotCard, etc.
+├── screens/       # 11 screens: Home, BirthChart, Tarot, Moon, Planets, Profile, Subscription, History, Compatibility, Dream, Numerology
+├── stores/        # Zustand stores: auth (subscription, limits, promo codes, referrals), history
+├── types/         # TypeScript types: ZodiacSign, Planet, TarotCard, SubscriptionTier, etc.
 ├── utils/         # astroCalculations, theme, storage, notifications
-└── App.tsx        # Entry point
+└── App.tsx        # Entry point with ErrorBoundary wrapper
 ```
 
 ## Development Guidelines
@@ -47,8 +48,17 @@ src/
 
 ### Feature Gating
 - Check `useAuthStore.canRead()` before allowing readings
-- Premium features check `user.subscription === 'premium' || 'pro'`
-- Birth chart is Pro-tier only
+- Premium features check `user.subscription === 'premium' || 'pro' || 'elite'`
+- Birth chart is Pro+ tier only
+- Dream interpretation is Pro+ tier only
+- Numerology is Elite tier only
+- Data export is Elite tier only
+
+### AI Integration
+- All AI calls are in `src/api/ai.ts`
+- Always wrap AI calls in try/catch with graceful fallbacks
+- Free HuggingFace API: 10k requests/month, no key required for basic usage
+- Local deterministic functions available as offline fallback
 
 ### Astrology Calculations
 - All calculations are in `src/utils/astroCalculations.ts`
@@ -77,6 +87,8 @@ npm run build:ios      # EAS build iOS
 ## Environment Variables
 
 Never commit `.env`. Required for production:
+- `HF_API_TOKEN` — HuggingFace API token (optional)
+- `MASTER_ACCESS_CODE` — Master code for Elite tier (default: STARZ-ELITE-2024)
 - `REVENUECAT_IOS_KEY`
 - `REVENUECAT_ANDROID_KEY`
 - `ADMOB_IOS_APP_ID`
@@ -92,7 +104,7 @@ GitHub Actions workflow in `.github/workflows/eas-build.yml`:
 
 ## Deployment
 
-See `docs/deployment.md` for full App Store / Google Play submission steps.
+See `docs/deployment.md` and `docs/store-deployment.md` for full App Store / Google Play submission steps.
 
 ## Important Notes for Future Agents
 
@@ -101,3 +113,6 @@ See `docs/deployment.md` for full App Store / Google Play submission steps.
 3. **Update bundle version** in `app.json` before each production build
 4. **Test on physical device** before submitting — starfield animation may lag on simulators
 5. **All generated files must stay under `src/`** — root config files are build/deployment only
+6. **Never commit API keys or secrets** — use `.env` and `.env.example` only
+7. **AI features must have offline fallbacks** — not all users will have internet
+8. **Promo codes and master codes are in `useAuthStore`** — update there for new campaigns

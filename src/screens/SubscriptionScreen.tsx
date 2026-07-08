@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { StarfieldBackground, CosmicCard } from '../components';
+import { StarfieldBackground, CosmicCard, PromoCodeInput } from '../components';
 import { Colors } from '../constants/colors';
 import { useAuthStore } from '../stores/useAuthStore';
 
@@ -14,42 +14,60 @@ const TIERS = [
     features: ['3 daily readings', 'Basic horoscope', 'Moon phase tracker', 'Ad-supported'],
     cta: 'Current Plan',
     highlight: false,
+    color: Colors.textMuted,
   },
   {
     key: 'premium' as const,
     name: 'Premium',
     price: '$9.99',
     period: '/mo',
-    features: ['Unlimited readings', 'Daily horoscope', 'Moon phase tracker', 'Tarot readings', 'Ad-free experience'],
+    features: ['Unlimited readings', 'Daily horoscope', 'Moon phase tracker', 'Tarot readings', 'AI-enhanced insights', 'Ad-free experience'],
     cta: 'Upgrade to Premium',
     highlight: true,
+    color: Colors.info,
   },
   {
     key: 'pro' as const,
     name: 'Pro',
     price: '$29.99',
     period: '/mo',
-    features: ['Everything in Premium', 'Full birth chart', 'Planetary transits', 'Advanced aspects', 'Priority support'],
+    features: ['Everything in Premium', 'Full birth chart', 'Planetary transits', 'Dream interpretation', 'Compatibility analysis', 'Priority support'],
     cta: 'Upgrade to Pro',
     highlight: false,
+    color: Colors.starGold,
+  },
+  {
+    key: 'elite' as const,
+    name: 'Elite',
+    price: '$99.99',
+    period: '/mo',
+    features: ['Everything in Pro', 'Numerology insights', 'Data export', 'Custom notifications', 'Exclusive cosmic events', '1-on-1 astrologer access', 'White-label sharing'],
+    cta: 'Upgrade to Elite',
+    highlight: false,
+    color: '#FF6BFF',
   },
 ];
 
 export const SubscriptionScreen: React.FC = () => {
   const user = useAuthStore((s) => s.user);
   const updateSubscription = useAuthStore((s) => s.updateSubscription);
+  const addReferral = useAuthStore((s) => s.addReferral);
 
-  const handleSubscribe = async (tier: 'free' | 'premium' | 'pro') => {
+  const handleSubscribe = async (tier: 'free' | 'premium' | 'pro' | 'elite') => {
     if (tier === 'free') {
       await updateSubscription('free');
       Alert.alert('Done', 'You are now on the Free plan.');
       return;
     }
-    // In production, integrate with react-native-iap / RevenueCat
     Alert.alert('Subscription', `In a real app, this would initiate purchase for ${tier}. For now, we'll activate it.`, [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Activate', onPress: async () => { await updateSubscription(tier); Alert.alert('Success', `${tier.charAt(0).toUpperCase() + tier.slice(1)} activated!`); } },
     ]);
+  };
+
+  const handleReferral = async () => {
+    await addReferral();
+    Alert.alert('Referral Added', 'Thanks for sharing! Refer 3 friends to unlock Premium for free.');
   };
 
   return (
@@ -67,10 +85,12 @@ export const SubscriptionScreen: React.FC = () => {
               gradient={true}
             >
               {tier.highlight && <View style={styles.badge}><Text style={styles.badgeText}>Best Value</Text></View>}
-              <Text style={styles.tierName}>{tier.name}</Text>
-              <View style={styles.priceRow}>
-                <Text style={styles.price}>{tier.price}</Text>
-                <Text style={styles.period}>{tier.period}</Text>
+              <View style={styles.tierHeader}>
+                <Text style={[styles.tierName, { color: tier.color }]}>{tier.name}</Text>
+                <View style={styles.priceRow}>
+                  <Text style={[styles.price, { color: tier.color }]}>{tier.price}</Text>
+                  <Text style={styles.period}>{tier.period}</Text>
+                </View>
               </View>
               <View style={styles.features}>
                 {tier.features.map((feat, i) => (
@@ -93,6 +113,21 @@ export const SubscriptionScreen: React.FC = () => {
             </CosmicCard>
           ))}
 
+          <PromoCodeInput />
+
+          <CosmicCard style={styles.referralCard}>
+            <Text style={styles.referralTitle}>🎁 Referral Program</Text>
+            <Text style={styles.referralText}>
+              Share Starz Cosmic Oracle with friends. Refer 3 friends and unlock Premium for free!
+            </Text>
+            <Text style={styles.referralCount}>
+              Current referrals: {user?.referralsCount || 0}/3
+            </Text>
+            <TouchableOpacity style={styles.referralBtn} onPress={handleReferral}>
+              <Text style={styles.referralBtnText}>📤 Share with Friends</Text>
+            </TouchableOpacity>
+          </CosmicCard>
+
           <Text style={styles.terms}>
             Subscriptions auto-renew. Cancel anytime in your app store settings. RevenueCat integration ready for production.
           </Text>
@@ -111,9 +146,10 @@ const styles = StyleSheet.create({
   tierCardHighlight: { borderColor: Colors.starGold, borderWidth: 2 },
   badge: { position: 'absolute', top: -10, right: 16, backgroundColor: Colors.starGold, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 },
   badgeText: { fontSize: 11, fontWeight: 'bold', color: Colors.cosmicBlack },
-  tierName: { fontSize: 20, fontWeight: 'bold', color: Colors.textPrimary, marginBottom: 4 },
+  tierHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  tierName: { fontSize: 20, fontWeight: 'bold' },
   priceRow: { flexDirection: 'row', alignItems: 'baseline' },
-  price: { fontSize: 28, fontWeight: 'bold', color: Colors.starGold },
+  price: { fontSize: 28, fontWeight: 'bold' },
   period: { fontSize: 14, color: Colors.textSecondary, marginLeft: 4 },
   features: { marginTop: 12, marginBottom: 16 },
   feature: { fontSize: 14, color: Colors.textSecondary, marginVertical: 3 },
@@ -121,5 +157,11 @@ const styles = StyleSheet.create({
   ctaBtnActive: { backgroundColor: 'rgba(46, 204, 113, 0.2)', borderColor: Colors.success },
   ctaBtnHighlight: { backgroundColor: Colors.primary, borderColor: Colors.primaryLight },
   ctaText: { color: Colors.textPrimary, fontWeight: 'bold', fontSize: 15 },
+  referralCard: { marginTop: 16, marginBottom: 16 },
+  referralTitle: { fontSize: 18, fontWeight: 'bold', color: Colors.starGold, marginBottom: 8 },
+  referralText: { fontSize: 14, color: Colors.textSecondary, lineHeight: 20, marginBottom: 8 },
+  referralCount: { fontSize: 14, fontWeight: 'bold', color: Colors.textPrimary, marginBottom: 12 },
+  referralBtn: { backgroundColor: Colors.primary, borderRadius: 8, padding: 12, alignItems: 'center' },
+  referralBtnText: { color: Colors.textPrimary, fontWeight: 'bold', fontSize: 14 },
   terms: { fontSize: 11, color: Colors.textMuted, textAlign: 'center', marginTop: 8, marginBottom: 24 },
 });

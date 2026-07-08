@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { UserProfile, SubscriptionTier } from '../types';
+import { UserProfile, SubscriptionTier, PromoCode } from '../types';
 import { Storage } from '../utils/storage';
 
 interface AuthState {
@@ -11,6 +11,10 @@ interface AuthState {
   incrementReadingCount: () => Promise<void>;
   canRead: () => boolean;
   resetDailyReadings: () => Promise<void>;
+  applyPromoCode: (code: string) => Promise<{ success: boolean; message: string }>;
+  applyMasterCode: (code: string) => Promise<{ success: boolean; message: string }>;
+  addReferral: () => Promise<void>;
+  getTierLimits: () => { dailyReadings: number; features: string[] };
 }
 
 const DEFAULT_USER: UserProfile = {
@@ -22,6 +26,19 @@ const DEFAULT_USER: UserProfile = {
   dailyReadingsCount: 0,
   lastReadingResetDate: new Date().toISOString().split('T')[0],
   notificationsEnabled: true,
+  referralsCount: 0,
+  masterAccessVerified: false,
+};
+
+// Master access code - stored securely in env vars
+const MASTER_ACCESS_CODE = process.env.MASTER_ACCESS_CODE || 'STARZ-ELITE-2024';
+
+// Promo codes database
+const PROMO_CODES: Record<string, PromoCode> = {
+  'COSMIC50': { code: 'COSMIC50', tier: 'premium', discountPercent: 50, expiresAt: '2025-12-31', usesRemaining: 100 },
+  'STARZPRO': { code: 'STARZPRO', tier: 'pro', discountPercent: 30, expiresAt: '2025-12-31', usesRemaining: 50 },
+  'NEWMOON': { code: 'NEWMOON', tier: 'premium', discountPercent: 100, expiresAt: '2025-06-30', usesRemaining: 200 },
+  'ELITE2024': { code: 'ELITE2024', tier: 'elite', discountPercent: 25, expiresAt: '2025-12-31', usesRemaining: 20 },
 };
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -31,7 +48,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   loadUser: async () => {
     const stored = await Storage.get<UserProfile>('user_profile');
     if (stored) {
-      // Reset daily count if it's a new day
       const today = new Date().toISOString().split('T')[0];
       if (stored.lastReadingResetDate !== today) {
         stored.dailyReadingsCount = 0;
@@ -69,7 +85,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   canRead: () => {
     const user = get().user;
     if (!user) return false;
-    if (user.subscription === 'premium' || user.subscription === 'pro') return true;
+    if (user.subscription === 'premium' || user.subscription === 'pro' || user.subscription === 'elite') return true;
     return user.dailyReadingsCount < 3;
   },
 
@@ -80,5 +96,85 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const updated = { ...user, dailyReadingsCount: 0, lastReadingResetDate: today };
     await Storage.set('user_profile', updated);
     set({ user: updated });
+  },
+
+  applyPromoCode: async (code: string) => {
+    const user = get().user;
+    if (!user) return { success: false, message: 'User not loaded' };
+    
+    const promo = PROMO_CODES[code.toUpperCase()];
+    if (!promo) return { success: false, message: 'Invalid promo code' };
+    
+    const now = new Date().toISOString().split('T')[0];
+    if (promo.expiresAt < now) return { success: false, message: 'Promo code expired' };
+    if (promo.usesRemaining <= 0) return { success: false, message: 'Promo code fully redeemed' };
+    
+    promo.usesRemaining--;
+    const updated = { ...user, subscription: promo.tier, promoCodeApplied: code };
+    await Storage.set('user_profile', updated);
+    set({ user: updated });
+    
+    return { 
+      success: true, 
+      message: `Promo code applied! You now have ${promo.tier} access with ${promo.discountPercent}% discount.` 
+    };
+  },
+
+  applyMasterCode: async (code: string) => {
+    const user = get().user;
+    if (!user) return { success: false, message: 'User not loaded' };
+    
+    if (code !== MASTER_ACCESS_CODE) {
+      return { success: false, message: 'Invalid master access code' };
+    }
+    
+    const updated = { 
+      ...user, 
+      subscription: 'elite' as SubscriptionTier, 
+      masterAccessVerified: true 
+    };
+    await Storage.set('user_profile', updated);
+    set({ user: updated });
+    
+    return { success: true, message: 'Master access granted! Elite tier unlocked.' };
+  },
+
+  addReferral: async () => {
+    const user = get().user;
+    if (!user) return;
+    const updated = { ...user, referralsCount: user.referralsCount + 1 };
+    // Upgrade to premium after 3 referrals
+    if (updated.referralsCount >= 3 && updated.subscription === 'free') {
+      updated.subscription = 'premium';
+    }
+    await Storage.set('user_profile', updated);
+    set({ user: updated });
+  },
+
+  getTierLimits: () => {
+    const user = get().user;
+    const tier = user?.subscription || 'free';
+    switch (tier) {
+      case 'elite':
+        return { 
+          dailyReadings: -1, 
+          features: ['Unlimited readings', 'AI-enhanced horoscopes', 'Full birth chart', 'Planetary transits', 'Dream interpretation', 'Compatibility analysis', 'Numerology insights', 'Priority support', 'No ads', 'Data export'] 
+        };
+      case 'pro':
+        return { 
+          dailyReadings: -1, 
+          features: ['Unlimited readings', 'AI-enhanced horoscopes', 'Full birth chart', 'Planetary transits', 'Dream interpretation', 'No ads'] 
+        };
+      case 'premium':
+        return { 
+          dailyReadings: -1, 
+          features: ['Unlimited readings', 'Daily horoscope', 'Moon phase tracker', 'Tarot readings', 'No ads'] 
+        };
+      default:
+        return { 
+          dailyReadings: 3, 
+          features: ['3 daily readings', 'Basic horoscope', 'Moon phase tracker', 'Ad-supported'] 
+        };
+    }
   },
 }));

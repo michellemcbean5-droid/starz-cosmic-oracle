@@ -1,14 +1,19 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, StyleSheet } from 'react-native';
+import { Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { HomeScreen, TarotScreen, MoonScreen, PlanetsScreen, ProfileScreen } from '../screens';
 import { Colors } from '../constants/colors';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from './RootNavigator';
 
 const Tab = createBottomTabNavigator();
 
 const tabBarLabelStyle = { fontSize: 11, marginBottom: 4 };
 
 export const MainTabNavigator: React.FC = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   return (
     <Tab.Navigator
       screenOptions={{

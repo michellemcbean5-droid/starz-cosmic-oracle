@@ -6,3 +6,6 @@ export { PlanetsScreen } from './PlanetsScreen';
 export { ProfileScreen } from './ProfileScreen';
 export { SubscriptionScreen } from './SubscriptionScreen';
 export { HistoryScreen } from './HistoryScreen';
+export { CompatibilityScreen } from './CompatibilityScreen';
+export { DreamScreen } from './DreamScreen';
+export { NumerologyScreen } from './NumerologyScreen';
