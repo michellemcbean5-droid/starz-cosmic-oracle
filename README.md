@@ -1,107 +1,172 @@
-# Starz Cosmic Oracle
+# Starz Cosmic Oracle 🌟
 
-A modern web application for celestial insights, cosmic predictions, and astrological guidance.
+A beautiful, fully-featured astrology and cosmic guidance mobile app built with React Native and Expo.
 
 ## Features
 
-- Interactive cosmic oracle interface
-- Celestial insights and predictions
-- Responsive, modern UI built with React and TypeScript
+- ✨ **Daily Horoscope** — Personalized readings for all 12 zodiac signs
+- 🌌 **Birth Chart (Natal Chart)** — Calculate your Big Three and planetary positions
+- 🔮 **Tarot Reading** — Draw cards with flip animations and interpretations
+- 🌙 **Moon Phase Tracker** — Accurate lunar calendar with illumination data
+- 🪐 **Planetary Transits** — Current cosmic weather with retrograde tracking
+- 📜 **Reading History** — Save and revisit past readings
+- 💎 **Premium Subscriptions** — Free, Premium ($9.99/mo), and Pro ($29.99/mo) tiers
+- 🔔 **Push Notifications** — Daily horoscope and moon event reminders
+- 📤 **Share** — Share readings with friends
 
-## Prerequisites
+## Tech Stack
 
-- [Node.js](https://nodejs.org/) >= 18.0.0
-- [npm](https://www.npmjs.com/) >= 9.0.0 (or [pnpm](https://pnpm.io/))
+- **Framework**: React Native 0.76.9 + Expo SDK 52
+- **Navigation**: React Navigation (Bottom Tabs + Stack)
+- **State**: Zustand
+- **Styling**: StyleSheet + Expo LinearGradient + Expo Blur
+- **Animation**: React Native Reanimated
+- **Storage**: AsyncStorage
+- **Payments**: react-native-iap + RevenueCat (ready)
+- **Ads**: react-native-google-mobile-ads (ready)
+- **Testing**: Jest + jest-expo
 
 ## Getting Started
 
-1. **Install dependencies**
-   ```bash
-   npm install
-   ```
+### Prerequisites
 
-2. **Start the development server**
-   ```bash
-   npm run dev
-   ```
-   Open [http://localhost:5173](http://localhost:5173) in your browser.
+- Node.js >= 18
+- npm or yarn
+- Expo CLI: `npm install -g expo-cli`
+- EAS CLI: `npm install -g eas-cli`
 
-3. **Run tests**
-   ```bash
-   npm test
-   ```
+### Installation
 
-4. **Build for production**
-   ```bash
-   npm run build
-   ```
+```bash
+# Clone the repo
+git clone https://github.com/michellemcbean5-droid/starz-cosmic-oracle.git
+cd starz-cosmic-oracle
 
-## Scripts
+# Install dependencies
+npm install
 
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start Vite dev server |
-| `npm run build` | Type-check and build for production |
-| `npm run preview` | Preview the production build locally |
-| `npm test` | Run all tests once |
-| `npm run test:watch` | Run tests in watch mode |
-| `npm run lint` | Lint TypeScript/TSX files |
-| `npm run lint:fix` | Lint and auto-fix issues |
-| `npm run typecheck` | Run TypeScript compiler without emitting |
+# Start the development server
+npx expo start
+```
+
+### Running on Device
+
+```bash
+# iOS simulator
+npm run ios
+
+# Android emulator
+npm run android
+```
 
 ## Project Structure
 
 ```
 starz-cosmic-oracle/
-├── .github/workflows/   # CI/CD configurations
-├── docs/                # Documentation
-├── public/              # Static assets
-├── src/                 # Source code
-│   ├── components/      # React components
-│   ├── hooks/           # Custom React hooks
-│   ├── utils/           # Utility functions
-│   ├── types/           # TypeScript type definitions
-│   ├── App.tsx          # Root application component
-│   └── main.tsx         # Application entry point
-├── tests/               # Test files
-├── index.html           # HTML entry point
-├── package.json         # Project dependencies
-├── tsconfig.json        # TypeScript configuration
-├── vite.config.ts       # Vite build configuration
-└── vitest.config.ts     # Vitest test configuration
+├── src/
+│   ├── api/              # Astrology data layer & calculations
+│   ├── components/       # Reusable UI components
+│   ├── constants/        # Colors, typography, astrology data, monetization
+│   ├── hooks/            # Custom React hooks
+│   ├── navigation/       # Root & Tab navigators
+│   ├── screens/          # 8 feature screens
+│   ├── stores/           # Zustand state stores
+│   ├── types/            # TypeScript definitions
+│   ├── utils/            # Astro calculations, storage, notifications
+│   └── App.tsx           # Entry point
+├── tests/                # Jest tests
+├── docs/                 # Architecture, deployment, design system
+├── assets/               # Images, icons, splash screens
+├── app.json              # Expo configuration
+├── eas.json              # EAS build profiles
+└── package.json
 ```
+
+## Scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm start` | Start Expo dev server |
+| `npm run android` | Start on Android |
+| `npm run ios` | Start on iOS |
+| `npm test` | Run Jest tests |
+| `npm run lint` | ESLint check |
+| `npm run typecheck` | TypeScript check |
+| `npm run build:android` | EAS build Android |
+| `npm run build:ios` | EAS build iOS |
 
 ## Testing
 
-Tests are written with [Vitest](https://vitest.dev/) and [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/).
-
 ```bash
-# Run all tests
 npm test
-
-# Run tests in watch mode
-npm run test:watch
 ```
 
-## Deployment
+Tests cover:
+- Julian day calculations
+- Moon phase accuracy (New Moon, Full Moon)
+- Sun sign determination
+- Birth chart generation
+- Tarot shuffle determinism
+- Zustand store logic
 
-The application is built as a static site and can be deployed to any static hosting platform:
+## Astrological Accuracy
 
-- [Vercel](https://vercel.com/)
-- [Netlify](https://www.netlify.com/)
-- [GitHub Pages](https://pages.github.com/)
-- [Cloudflare Pages](https://pages.cloudflare.com/)
+All calculations use real astronomical algorithms:
+- **Julian Day** conversion for precise date math
+- **Moon phase** using synodic month (29.53058867 days)
+- **Sun longitude** using orbital elements with aberration correction
+- **Moon longitude** using Meeus algorithm approximation
+- **Planetary positions** using mean orbital elements
+- **Aspects** calculated with standard orbs (8°)
 
-Build output is in the `dist/` directory after running `npm run build`.
+## Monetization
 
-## Contributing
+### Tiers
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+| Tier | Price | Features |
+|------|-------|----------|
+| Free | $0 | 3 readings/day, ads |
+| Premium | $9.99/mo | Unlimited readings, no ads, tarot |
+| Pro | $29.99/mo | Everything + birth chart + transits |
+
+### Setup
+
+1. Configure RevenueCat or direct IAP in `src/constants/revenuecat.ts`
+2. Configure AdMob in `src/constants/ads.ts`
+3. See `docs/deployment.md` for full store setup instructions
+
+## Build & Deploy
+
+### Development Build
+
+```bash
+eas build --profile development
+```
+
+### Production Build
+
+```bash
+# Android
+eas build --platform android --profile production
+
+# iOS
+eas build --platform ios --profile production
+```
+
+See `docs/deployment.md` for complete App Store and Google Play submission guides.
+
+## Design System
+
+See `docs/DesignSystem.md` for:
+- Color palette (cosmic dark theme with star golds)
+- Typography scale
+- Spacing system
+- Animation guidelines
 
 ## License
 
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+MIT License — see [LICENSE](LICENSE) for details.
+
+---
+
+*Made with 💫 by the Starz Cosmic Oracle team.*

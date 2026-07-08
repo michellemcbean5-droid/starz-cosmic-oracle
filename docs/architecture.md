@@ -1,94 +1,71 @@
-# Architecture
-
-This document describes the high-level architecture and design decisions of the Starz Cosmic Oracle application.
+# Starz Cosmic Oracle — Architecture
 
 ## Overview
 
-Starz Cosmic Oracle is a single-page application (SPA) built with modern web technologies. It follows a component-based architecture with clear separation of concerns.
+Starz Cosmic Oracle is a React Native / Expo mobile app built with a modular, layered architecture.
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| UI Framework | React 18 |
-| Language | TypeScript |
-| Build Tool | Vite |
-| Styling | CSS with CSS variables |
-| Testing | Vitest + React Testing Library |
-| CI/CD | GitHub Actions |
+| Framework | React Native 0.76.9 + Expo SDK 52 |
+| Navigation | React Navigation (Bottom Tabs + Stack) |
+| State | Zustand |
+| Styling | StyleSheet + Expo LinearGradient / Blur |
+| Animation | React Native Reanimated |
+| Storage | AsyncStorage |
+| Notifications | Expo Notifications |
+| Payments | react-native-iap + RevenueCat (ready) |
+| Ads | react-native-google-mobile-ads (ready) |
 
-## Project Structure
+## Directory Structure
 
 ```
 src/
-├── components/      # Reusable UI components
-│   └── Each component in its own folder with .tsx, .css, and test files
-├── hooks/           # Custom React hooks
-│   └── useLocalStorage.ts
-│   └── useCosmicData.ts
-├── utils/           # Pure helper functions
-│   └── formatters.ts
-│   └── validators.ts
-├── types/           # Shared TypeScript types
-│   └── index.ts
-├── App.tsx          # Root component
-├── App.css          # Root styles
-├── main.tsx         # Application entry point
-└── index.css        # Global styles and CSS variables
+├── api/              # Data layer — astrology calculations, mock API
+├── components/       # Reusable UI components (Starfield, CosmicCard, etc.)
+├── constants/        # Colors, typography, astrology data, monetization config
+├── hooks/            # Custom React hooks (useAuth, useDailyReset)
+├── navigation/       # Root and Tab navigators
+├── screens/          # 8+ screen components
+├── stores/           # Zustand stores (auth, history)
+├── types/            # TypeScript type definitions
+├── utils/            # Astro calculations, theme, storage, notifications
+├── App.tsx           # Entry point
 ```
-
-## Design Decisions
-
-### React with Hooks
-We use functional components with hooks for all new code. This provides a cleaner API and better composability compared to class components.
-
-### CSS Variables for Theming
-The application uses CSS custom properties (variables) defined in `index.css` for theming. This allows easy customization and supports future dark/light mode toggles.
-
-### Vite for Build Tooling
-Vite was chosen over Create React App for its faster development server and optimized production builds. It also has first-class TypeScript support.
-
-### Vitest for Testing
-Vitest provides a Jest-compatible API with native ESM support and faster execution through Vite's transform pipeline.
 
 ## Data Flow
 
-```
-User Interaction → Component → Hook/State → UI Update
-                        ↓
-                    API Call (future)
-                        ↓
-                   External Service
-```
+1. **User action** → Screen component
+2. **Screen** → calls API function or Zustand store action
+3. **API** → uses astro calculations (pure functions) or AsyncStorage
+4. **Store** → updates state + persists to AsyncStorage
+5. **Component** → re-renders with new state
 
-Currently, the application uses local state. As features grow, consider:
-- React Context for global state
-- React Query for server state management
-- Zustand or Redux Toolkit for complex client state
+## Key Patterns
 
-## Future Architecture Considerations
+- **Pure calculations**: All astrology math is in `utils/astroCalculations.ts` with no side effects
+- **Deterministic readings**: Horoscopes and tarot shuffles are seeded by date so same inputs = same outputs
+- **Feature gates**: Subscription checks live in `useAuthStore.canRead()`
+- **Local-first**: All data is stored locally; no backend required for core features
 
-### Backend Integration
-When adding a backend API:
-- Use `fetch` or a library like `axios`
-- Implement error handling and loading states
-- Add request/response interceptors for auth tokens
+## Monetization Architecture
 
-### Routing
-For multi-page navigation, add `react-router-dom`:
-```bash
-npm install react-router-dom
-```
+| Tier | Limitations | Backend |
+|------|-------------|---------|
+| Free | 3 readings/day, ads shown | N/A |
+| Premium | Unlimited, no ads | RevenueCat / IAP |
+| Pro | + Birth chart, priority | RevenueCat / IAP |
 
-### State Management
-If global state grows complex:
-- Start with React Context
-- Migrate to Zustand for simplicity
-- Use Redux Toolkit only for very complex state
+The `constants/revenuecat.ts` and `constants/ads.ts` files contain configuration stubs ready for production credentials.
 
-## Performance
+## Testing
 
-- Use `React.memo` for expensive components
-- Lazy load routes with `React.lazy()` and `Suspense`
-- Optimize images and assets
-- Use `useMemo` and `useCallback` where beneficial
+- Jest with jest-expo preset
+- Tests cover: Julian day calculations, moon phases, sun sign logic, birth chart generation, tarot shuffle, store logic
+
+## Build Pipeline
+
+- EAS Build via `eas.json` (dev, preview, production)
+- GitHub Actions workflow triggers EAS builds on push to main
+- App signed with bundle IDs `com.starz.cosmicoracle` (iOS + Android)

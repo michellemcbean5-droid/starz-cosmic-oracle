@@ -2,65 +2,102 @@
 
 ## Project Overview
 
-Starz Cosmic Oracle is a React + TypeScript web application built with Vite. It provides celestial insights and cosmic predictions through an interactive UI.
+Starz Cosmic Oracle is a React Native / Expo mobile astrology app providing daily horoscopes, birth charts, tarot readings, moon phases, and planetary transits. It supports monetization via subscriptions and ads.
 
 ## Technology Stack
 
-- **Framework**: React 18 (functional components + hooks)
-- **Language**: TypeScript (strict mode)
-- **Build Tool**: Vite
-- **Testing**: Vitest + React Testing Library
-- **Linting**: ESLint with TypeScript support
+- **Framework**: React Native 0.76.9 + Expo SDK 52
+- **Navigation**: React Navigation (Bottom Tabs + Stack)
+- **State**: Zustand (lightweight, no Context boilerplate)
+- **Styling**: StyleSheet + Expo LinearGradient + Expo Blur (glassmorphism)
+- **Animation**: React Native Reanimated (starfield twinkle, card flips)
+- **Storage**: AsyncStorage (local persistence)
+- **Notifications**: Expo Notifications (daily horoscope, moon events)
+- **Payments**: react-native-iap + RevenueCat configuration stubs
+- **Ads**: react-native-google-mobile-ads configuration stubs
+- **Testing**: Jest + jest-expo preset
+
+## Directory Structure
+
+```
+src/
+├── api/           # Astrology data & calculations (pure functions)
+├── components/    # Reusable UI (CosmicCard, StarfieldBackground, etc.)
+├── constants/     # Colors, typography, astrology data, ads, IAP config
+├── hooks/         # useAuth, useDailyReset
+├── navigation/    # RootNavigator (Stack), MainTabNavigator (Bottom Tabs)
+├── screens/      # 8 screens: Home, BirthChart, Tarot, Moon, Planets, Profile, Subscription, History
+├── stores/        # Zustand stores: auth (subscription, limits), history
+├── types/         # TypeScript types: ZodiacSign, Planet, TarotCard, etc.
+├── utils/         # astroCalculations, theme, storage, notifications
+└── App.tsx        # Entry point
+```
 
 ## Development Guidelines
 
 ### Code Style
-
-- Use functional components with hooks; avoid class components.
-- Prefer `const` and `let` over `var`.
-- Use explicit return types for exported functions.
-- Keep components small and focused; extract reusable logic into custom hooks.
-- Use the `@/` path alias for imports from `src/`.
-
-### File Organization
-
-- `src/components/` — Reusable UI components (PascalCase filenames)
-- `src/hooks/` — Custom React hooks (camelCase, prefix with `use`)
-- `src/utils/` — Pure helper functions
-- `src/types/` — Shared TypeScript interfaces and type aliases
-- `tests/` — Test files (co-located or mirrored structure)
+- Functional components with hooks only
+- TypeScript strict mode
+- Use `const` and `let`, never `var`
+- Prefer `@/` path alias for imports from `src/`
 
 ### State Management
+- Zustand for global state (auth, history)
+- Local `useState` for screen-level UI state
 
-- Start with React built-in state (`useState`, `useReducer`).
-- For complex global state, consider Context API or a lightweight state library.
-- Keep state as close to where it's used as possible.
+### Feature Gating
+- Check `useAuthStore.canRead()` before allowing readings
+- Premium features check `user.subscription === 'premium' || 'pro'`
+- Birth chart is Pro-tier only
 
-### Testing Requirements
+### Astrology Calculations
+- All calculations are in `src/utils/astroCalculations.ts`
+- They are deterministic and mathematically accurate
+- Use `mulberry32` seeded PRNG for consistent daily horoscopes
 
-- Write unit tests for all utility functions.
-- Write component tests for all user-facing components.
-- Aim for meaningful test coverage, not 100% coverage for its own sake.
-- Mock external APIs and browser APIs in tests.
+### Adding a New Screen
+1. Create component in `src/screens/`
+2. Export from `src/screens/index.ts`
+3. Add to navigator in `src/navigation/RootNavigator.tsx` or `MainTabNavigator.tsx`
+4. Add test if it contains business logic
 
 ## Common Commands
 
 ```bash
-npm run dev          # Start dev server
-npm run build        # Production build
-npm test             # Run tests
-npm run lint         # Check code style
-npm run typecheck    # TypeScript type check
+npm start              # Expo dev server
+npm run android        # Run on Android
+npm run ios            # Run on iOS
+npm test               # Jest tests
+npm run lint           # ESLint
+npm run typecheck      # TypeScript
+npm run build:android  # EAS build Android
+npm run build:ios      # EAS build iOS
 ```
 
 ## Environment Variables
 
-Copy `.env.example` to `.env` and fill in required values. Never commit `.env` files.
+Never commit `.env`. Required for production:
+- `REVENUECAT_IOS_KEY`
+- `REVENUECAT_ANDROID_KEY`
+- `ADMOB_IOS_APP_ID`
+- `ADMOB_ANDROID_APP_ID`
+- `EXPO_TOKEN` (for CI/CD)
 
 ## CI/CD
 
-The project uses GitHub Actions for CI (see `.github/workflows/ci.yml`). All PRs must pass build, test, and lint checks before merging.
+GitHub Actions workflow in `.github/workflows/eas-build.yml`:
+- Runs tests, lint, typecheck on every PR
+- Triggers EAS preview builds on main branch push
+- Requires `EXPO_TOKEN` GitHub secret
 
 ## Deployment
 
-Production builds are static files in `dist/`. Deploy to any static hosting provider.
+See `docs/deployment.md` for full App Store / Google Play submission steps.
+
+## Important Notes for Future Agents
+
+1. **Do not modify astronomical algorithms** without verifying accuracy against known ephemeris data
+2. **Keep subscription tiers in sync** across UI, store logic, and API gating
+3. **Update bundle version** in `app.json` before each production build
+4. **Test on physical device** before submitting — starfield animation may lag on simulators
+5. **All generated files must stay under `src/`** — root config files are build/deployment only
