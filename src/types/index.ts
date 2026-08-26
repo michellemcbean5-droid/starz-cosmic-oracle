@@ -1,5 +1,3 @@
-import { ZodiacSign, HoroscopeReading, TarotReading, BirthChartData, MoonPhase, PlanetTransit, SubscriptionTier, UserProfile, ReadingHistoryItem, CompatibilityResult, DreamInterpretation, NumerologyReading, AIInsight } from '../types';
-
 export type ZodiacSign =
   | 'Aries' | 'Taurus' | 'Gemini' | 'Cancer' | 'Leo' | 'Virgo'
   | 'Libra' | 'Scorpio' | 'Sagittarius' | 'Capricorn' | 'Aquarius' | 'Pisces';
@@ -132,6 +130,134 @@ export type AIInsight = {
   content: string;
   confidence: number;
   generatedAt: string;
+};
+
+// ---------------------------------------------------------------------------
+// Precision engine types (server/ — Swiss Ephemeris backed)
+// ---------------------------------------------------------------------------
+
+export type EngineBody = {
+  name: string;
+  glyph: string;
+  longitude: number;
+  sign: string;
+  sign_glyph: string;
+  degree: number;
+  degree_str: string;
+  retrograde: boolean;
+  speed: number;
+  house?: number;
+  element: string;
+  mode: string;
+};
+
+export type EngineAngle = {
+  name: string;
+  glyph: string;
+  longitude: number;
+  sign: string;
+  sign_glyph: string;
+  degree: number;
+  degree_str: string;
+};
+
+export type EngineHouse = {
+  number: number;
+  longitude: number;
+  sign: string;
+  sign_glyph: string;
+  degree: number;
+};
+
+export type EngineAspect = {
+  body1: string;
+  body2: string;
+  aspect: string;
+  angle: number;
+  orb: number;
+  kind: 'major' | 'minor';
+};
+
+export type EngineChart = {
+  julian_day: number;
+  bodies: EngineBody[];
+  houses: EngineHouse[];
+  angles: Record<'Ascendant' | 'Midheaven' | 'Descendant' | 'Imum Coeli', EngineAngle>;
+  aspects: EngineAspect[];
+  balance: {
+    elements: Record<string, number>;
+    modes: Record<string, number>;
+    dominant_element: string;
+    dominant_mode: string;
+  };
+  house_system: string;
+};
+
+export type ArabicLot = {
+  name: string;
+  longitude: number;
+  sign: string;
+  sign_glyph: string;
+  degree: number;
+  degree_str: string;
+  formula: string;
+  meaning: string;
+};
+
+export type TransitHit = {
+  transit: string;
+  aspect: string;
+  natal: string;
+  orb: number;
+  transit_sign: string;
+  retrograde: boolean;
+};
+
+export type EngineTransits = {
+  datetime: string;
+  sky: EngineBody[];
+  hits: TransitHit[];
+};
+
+export type SlangReading = {
+  core: { title: string; sun: string; moon: string; rising: string };
+  balance: { title: string; element: string; mode: string; elements: Record<string, number>; modes: Record<string, number> };
+  planets: { planet: string; glyph: string; sign: string; degree: string; headline: string; text: string }[];
+  aspects: { pair: string; kind: string; orb: number; text: string }[];
+  sabian: { point: string; sabian: string; symbol: string; text: string }[];
+  lots: { name: string; placement: string; text: string }[];
+  predictions?: { title: string; as_of: string; lines: { text: string; orb: number }[] };
+};
+
+export type PreciseChartResponse = {
+  name?: string | null;
+  birth: { date: string; time: string };
+  chart: EngineChart;
+  lots: ArabicLot[];
+  transits: EngineTransits;
+  reading: SlangReading;
+};
+
+export type AIReadingResponse = {
+  available: boolean;
+  text?: string;
+  reason?: string;
+};
+
+export type WorldForecast = {
+  year: number;
+  as_of: string;
+  aries_ingress: {
+    year: number;
+    moment_utc: string;
+    location: string;
+    ascendant: { sign: string; degree_str: string };
+    bodies: EngineBody[];
+    aspects: EngineAspect[];
+  };
+  current_sky: EngineBody[];
+  world_aspects: { body1: string; body2: string; aspect: string; orb: number }[];
+  predictions: string[];
 };
 
 export type SubscriptionPlan = {

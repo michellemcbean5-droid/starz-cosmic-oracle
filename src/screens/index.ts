@@ -9,3 +9,4 @@ export { HistoryScreen } from './HistoryScreen';
 export { CompatibilityScreen } from './CompatibilityScreen';
 export { DreamScreen } from './DreamScreen';
 export { NumerologyScreen } from './NumerologyScreen';
+export { WorldPredictionsScreen } from './WorldPredictionsScreen';

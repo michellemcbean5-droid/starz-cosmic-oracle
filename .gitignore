@@ -17,3 +17,9 @@ yarn-error.*
 *.log
 coverage/
 *.tsbuildinfo
+
+# Python (server/)
+__pycache__/
+*.pyc
+.venv/
+venv/

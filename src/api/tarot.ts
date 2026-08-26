@@ -32,14 +32,8 @@ function generateTarotInterpretation(cards: TarotCard[], question?: string): str
     const position = positions[i] || 'Additional insight';
     return `${position}: ${card.name} — ${card.meaning}`;
   });
-  const questionIntro = question ? `For your question "${question}", the cards reveal:
-
-` : 'The cosmic cards reveal:
-
-';
-  return questionIntro + parts.join('
-
-') + '
-
-Trust the wisdom of the universe as you move forward.';
+  const questionIntro = question
+    ? `For your question "${question}", the cards reveal:\n\n`
+    : 'The cosmic cards reveal:\n\n';
+  return questionIntro + parts.join('\n\n') + '\n\nTrust the wisdom of the universe as you move forward.';
 }

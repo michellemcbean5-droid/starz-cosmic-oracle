@@ -2,13 +2,14 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MainTabNavigator } from './MainTabNavigator';
-import { 
-  BirthChartScreen, 
-  SubscriptionScreen, 
+import {
+  BirthChartScreen,
+  SubscriptionScreen,
   HistoryScreen,
   CompatibilityScreen,
   DreamScreen,
   NumerologyScreen,
+  WorldPredictionsScreen,
 } from '../screens';
 import { Colors } from '../constants/colors';
 
@@ -20,6 +21,7 @@ export type RootStackParamList = {
   Compatibility: undefined;
   Dream: undefined;
   Numerology: undefined;
+  WorldPredictions: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -42,6 +44,7 @@ export const RootNavigator: React.FC = () => {
         <Stack.Screen name="Compatibility" component={CompatibilityScreen} options={{ title: 'Compatibility' }} />
         <Stack.Screen name="Dream" component={DreamScreen} options={{ title: 'Dream Oracle' }} />
         <Stack.Screen name="Numerology" component={NumerologyScreen} options={{ title: 'Numerology' }} />
+        <Stack.Screen name="WorldPredictions" component={WorldPredictionsScreen} options={{ title: 'World Predictions' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

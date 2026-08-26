@@ -4,3 +4,4 @@ export * from './moon';
 export * from './planets';
 export * from './birthChart';
 export * from './ai';
+export * from './ephemerisEngine';

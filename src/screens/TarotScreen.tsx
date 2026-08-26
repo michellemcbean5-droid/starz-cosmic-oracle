@@ -21,7 +21,7 @@ export const TarotScreen: React.FC = () => {
     if (!canRead()) return;
     setLoading(true);
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    const result = drawTarotCards(3, question.trim() || undefined);
+    const result = await drawTarotCards(3, question.trim() || undefined);
     setReading(result);
     await incrementReading();
     await addReading({

@@ -1,14 +1,31 @@
 # Starz Cosmic Oracle 🌟
 
-A beautiful, fully-featured astrology and cosmic guidance mobile app built with React Native and Expo.
+A beautiful, fully-featured astrology + tarot mobile app built with React Native
+and Expo, backed by a precision astrology engine (`server/`) that runs the real
+**Swiss Ephemeris** — the same astronomy library professional astrology software
+uses — so every chart is astronomically exact, not approximated.
+
+## Two Parts
+
+| | What it is | Where |
+|---|---|---|
+| **Mobile app** | The React Native/Expo app people use | `src/` |
+| **Precision engine** | FastAPI + Swiss Ephemeris backend for exact charts, Sabian symbols, Arabic Lots, slang predictions, and world/mundane forecasts | `server/` |
+
+The app calls the engine over HTTP and **falls back to its built-in offline
+estimate** if the engine is unreachable (see `src/api/ephemerisEngine.ts` and
+`AGENTS.md`'s AI-fallback convention) — so the app always works, with or
+without the backend running.
 
 ## Features
 
 - ✨ **Daily Horoscope** — AI-enhanced personalized readings for all 12 zodiac signs
-- 🌌 **Birth Chart (Natal Chart)** — Calculate your Big Three and planetary positions
+- 🌌 **Precision Birth Chart** — Exact planets, houses, angles & aspects via Swiss Ephemeris; Sabian symbols and Arabic Lots (Fortune, Spirit, Eros, Marriage, Career, Courage, Faith); a full plain-English "slang" reading
 - 🔮 **Tarot Reading** — Draw cards with flip animations and AI-enhanced interpretations
 - 🌙 **Moon Phase Tracker** — Accurate lunar calendar with illumination data
-- 🪐 **Planetary Transits** — Current cosmic weather with retrograde tracking
+- 🪐 **Planetary Transits** — Current cosmic weather with real retrograde tracking
+- 🌍 **World Predictions** — Mundane astrology: the Aries Ingress chart + outer-planet aspects, translated into plain-English forecasts for the collective (not just you)
+- ✦ **Ask The Oracle** — Full AI-written (Claude) personalized report in easy slang, grounded in your real chart data
 - 💕 **Compatibility Analysis** — Zodiac compatibility with AI-powered insights
 - 🌙 **Dream Oracle** — AI dream interpretation with sentiment analysis
 - 🔢 **Numerology** — Life path numbers and cosmic number meanings
@@ -16,7 +33,7 @@ A beautiful, fully-featured astrology and cosmic guidance mobile app built with 
 - 💎 **Premium Subscriptions** — Free, Premium ($9.99/mo), Pro ($29.99/mo), Elite ($99.99/mo)
 - 🔔 **Push Notifications** — Daily horoscope and moon event reminders
 - 📤 **Share** — Share readings with friends
-- 🤖 **AI Integration** — Free HuggingFace API for enhanced cosmic insights
+- 🤖 **AI Integration** — Free HuggingFace API for lightweight enhancements, Claude for full personalized readings
 
 ## Tech Stack
 
@@ -53,6 +70,24 @@ npm install
 # Start the development server
 npx expo start
 ```
+
+### Running the Precision Engine (server/)
+
+The mobile app works fully offline with built-in estimates, but for
+astronomically exact charts, Sabian symbols, Arabic Lots and world
+predictions, run the backend alongside it:
+
+```bash
+cd server
+pip install -r requirements.txt
+uvicorn main:app --host 0.0.0.0 --port 8420
+```
+
+Then set `EXPO_PUBLIC_EPHEMERIS_API_URL` in your `.env` to point at it
+(defaults to `http://localhost:8420`). Optionally set `ANTHROPIC_API_KEY`
+(see `server/.env.example`) to unlock the full AI-written "Ask The Oracle"
+reports — without it, the engine still returns the complete rules-based
+slang reading.
 
 ### Running on Device
 

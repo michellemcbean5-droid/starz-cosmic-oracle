@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Switch, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StarfieldBackground, CosmicCard, ZodiacIcon } from '../components';
 import { Colors } from '../constants/colors';
 import { ZODIAC_SIGNS } from '../constants/astrology';
@@ -8,8 +10,10 @@ import { useAuthStore } from '../stores/useAuthStore';
 import { requestNotificationPermissions, scheduleDailyHoroscope, cancelAllNotifications } from '../utils/notifications';
 import { calculateSunSign } from '../utils/astroCalculations';
 import { ZodiacSign } from '../types';
+import { RootStackParamList } from '../navigation/RootNavigator';
 
 export const ProfileScreen: React.FC = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
   const [name, setName] = useState(user?.name || '');
@@ -92,6 +96,18 @@ export const ProfileScreen: React.FC = () => {
               <Text style={styles.saveBtnText}>Save Profile</Text>
             </TouchableOpacity>
           </CosmicCard>
+
+          <CosmicCard style={styles.formCard}>
+            <Text style={styles.sectionTitle}>Cosmic Tools</Text>
+            <TouchableOpacity style={styles.toolBtn} onPress={() => navigation.navigate('BirthChart')}>
+              <Text style={styles.toolBtnText}>🌌 Precision Birth Chart</Text>
+              <Text style={styles.toolBtnHint}>Exact planets, houses, Sabian symbols & Arabic Lots</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.toolBtn} onPress={() => navigation.navigate('WorldPredictions')}>
+              <Text style={styles.toolBtnText}>🌍 World Predictions</Text>
+              <Text style={styles.toolBtnHint}>What the sky says about the year ahead for everyone</Text>
+            </TouchableOpacity>
+          </CosmicCard>
         </ScrollView>
       </SafeAreaView>
     </View>
@@ -115,4 +131,7 @@ const styles = StyleSheet.create({
   switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 16 },
   saveBtn: { marginTop: 20, backgroundColor: Colors.primary, borderRadius: 8, padding: 14, alignItems: 'center' },
   saveBtnText: { color: Colors.textPrimary, fontWeight: 'bold', fontSize: 15 },
+  toolBtn: { backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 8, padding: 14, marginTop: 10, borderWidth: 1, borderColor: Colors.cardBorder },
+  toolBtnText: { color: Colors.textPrimary, fontWeight: 'bold', fontSize: 15 },
+  toolBtnHint: { color: Colors.textSecondary, fontSize: 12, marginTop: 4 },
 });

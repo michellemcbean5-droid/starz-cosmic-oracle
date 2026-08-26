@@ -54,22 +54,14 @@ export const MoonScreen: React.FC = () => {
           <CosmicCard style={styles.infoCard}>
             <Text style={styles.infoTitle}>🌕 Lunar Wisdom</Text>
             <Text style={styles.infoText}>
-              • New Moon: Set intentions, plant seeds, begin new projects.{'
-'}
-              • Waxing Crescent: Take action, build momentum.{'
-'}
-              • First Quarter: Make decisions, overcome obstacles.{'
-'}
-              • Waxing Gibbous: Refine, adjust, prepare for culmination.{'
-'}
-              • Full Moon: Celebrate, release, manifest gratitude.{'
-'}
-              • Waning Gibbous: Share wisdom, teach, give back.{'
-'}
-              • Last Quarter: Let go, forgive, clear space.{'
-'}
-              • Waning Crescent: Rest, dream, renew your spirit.{'
-'}
+              • New Moon: Set intentions, plant seeds, begin new projects.{'\n'}
+              • Waxing Crescent: Take action, build momentum.{'\n'}
+              • First Quarter: Make decisions, overcome obstacles.{'\n'}
+              • Waxing Gibbous: Refine, adjust, prepare for culmination.{'\n'}
+              • Full Moon: Celebrate, release, manifest gratitude.{'\n'}
+              • Waning Gibbous: Share wisdom, teach, give back.{'\n'}
+              • Last Quarter: Let go, forgive, clear space.{'\n'}
+              • Waning Crescent: Rest, dream, renew your spirit.{'\n'}
             </Text>
           </CosmicCard>
         </ScrollView>

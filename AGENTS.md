@@ -2,7 +2,47 @@
 
 ## Project Overview
 
-Starz Cosmic Oracle is a React Native / Expo mobile astrology app providing daily horoscopes, birth charts, tarot readings, moon phases, planetary transits, dream interpretation, compatibility analysis, and numerology. It supports monetization via subscriptions and ads, with AI-powered enhancements via free HuggingFace API.
+Starz Cosmic Oracle is a React Native / Expo mobile astrology + tarot app providing
+daily horoscopes, precision birth charts, tarot readings, moon phases, planetary
+transits, dream interpretation, compatibility analysis, numerology, and mundane
+(world) predictions. It supports monetization via subscriptions and ads, with
+AI-powered enhancements via free HuggingFace API and full personalized readings
+via Claude.
+
+The repo has two parts:
+- `src/` — the React Native/Expo mobile app (see stack below)
+- `server/` — a FastAPI backend running the real Swiss Ephemeris for
+  astronomically exact charts (see "Precision Engine" section below)
+
+## Precision Engine (server/)
+
+`server/` is a standalone Python/FastAPI service, independent of the Expo app's
+build. It uses `pyswisseph` (Swiss Ephemeris bindings) — the same astronomy
+library professional astrology software is built on — to compute exact
+planet/house/aspect positions, not approximations.
+
+- `server/ephemeris.py` — core chart math: planets, houses (Placidus), angles,
+  aspects, element/mode balance, transits
+- `server/sabian.py` — all 360 Sabian symbols (Marc Edmund Jones / Elsie
+  Wheeler set), looked up by ecliptic degree
+- `server/arabic_parts.py` — Arabic Parts/Lots (Fortune, Spirit, Eros,
+  Marriage, Career, Courage, Faith), with day/night sect handling
+- `server/mundane.py` — world/event predictions via the Aries Ingress
+  technique + outer-planet aspects (classic mundane astrology)
+- `server/interpret.py` — turns raw chart data into plain-English "slang"
+  readings; also has an optional Claude (`ANTHROPIC_API_KEY`) enrichment path
+- `server/main.py` — FastAPI routes (`/api/chart`, `/api/reading/ai`,
+  `/api/world`, `/api/cities`, `/api/health`)
+
+The mobile app calls this via `src/api/ephemerisEngine.ts`. **Every call in
+that client fails soft (returns `null` on any error/timeout)** — screens must
+treat `null` as "fall back to the local offline estimate," matching the
+existing AI-fallback convention below. Never make the precision engine a hard
+dependency for a screen to render.
+
+Do not modify `ephemeris.py`'s astronomy math without verifying results
+against known ephemeris data (see the `if __name__ == "__main__"` smoke tests
+in each server file for a quick sanity check).
 
 ## Technology Stack
 
@@ -87,6 +127,7 @@ npm run build:ios      # EAS build iOS
 ## Environment Variables
 
 Never commit `.env`. Required for production:
+- `EXPO_PUBLIC_EPHEMERIS_API_URL` — URL of the precision engine (`server/`); defaults to `http://localhost:8420` for local dev
 - `HF_API_TOKEN` — HuggingFace API token (optional)
 - `MASTER_ACCESS_CODE` — Master code for Elite tier (default: STARZ-ELITE-2024)
 - `REVENUECAT_IOS_KEY`
@@ -116,3 +157,5 @@ See `docs/deployment.md` and `docs/store-deployment.md` for full App Store / Goo
 6. **Never commit API keys or secrets** — use `.env` and `.env.example` only
 7. **AI features must have offline fallbacks** — not all users will have internet
 8. **Promo codes and master codes are in `useAuthStore`** — update there for new campaigns
+9. **`server/` (Python) is a separate deployable service** from the Expo app — it has its own `requirements.txt` and isn't part of `npm install`/`eas build`. Don't add Python deps to `package.json` or JS deps to `server/requirements.txt`
+10. **`server/main.py` needs `ANTHROPIC_API_KEY` for `/api/reading/ai`** — without it, that endpoint still responds (with `available: false` and a reason), it just skips the Claude-authored version

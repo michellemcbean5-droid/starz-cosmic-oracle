@@ -18,7 +18,7 @@ export async function scheduleDailyHoroscope(hour: number = 8): Promise<string> 
   return await Notifications.scheduleNotificationAsync({
     content: {
       title: '✨ Your Daily Cosmic Guidance',
-      body: 'Your stars have aligned. Check today's horoscope and cosmic insights.',
+      body: "Your stars have aligned. Check today's horoscope and cosmic insights.",
       sound: 'default',
     },
     trigger: { hour, minute: 0, repeats: true },
